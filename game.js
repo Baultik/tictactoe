@@ -32,10 +32,6 @@ function setupGame() {
     var imageSrc1 = 'img/cursor.png';
     var imageSrc2 = 'img/cursor.png';
     initialize(imageSrc1,25,25,imageSrc2, 25, 25, 1.2 );
-    var audio = {};
-    audio["dataline"] = new Audio();
-    audio["dataline"].src = "mp3/dataline.mp3";  //audio file source
-    audio["dataline"].play(); //audio file play
 }
 /**
  * Click handler for all cell objects
@@ -48,12 +44,11 @@ function handleCellClick() {
         cell.setState(player.symbol);
         game.switchPlayer();
         game.checkWin(cell);
-        var audio = {};
-        audio["dataline"] = new Audio();
+
+        /*audio["dataline"] = new Audio();
         audio["dataline"].src = "mp3/zg_btn_sm1.wav";  //audio file source
-        audio["dataline"].play(); //audio file play
+        audio["dataline"].play(); //audio file play*/
     }
-    //console.log("clicked");
 }
 /**
  * Leap motion events call this function
@@ -77,8 +72,6 @@ function pointerTapped(x,y) {
     } else if (element === $(".start")[0]){
         game.startGame();
     }
-
-    console.log("pointer tapped x:" + x + " y: " + y,element);
 }
 /**
  * Main game constructor. Sets up and resets the game board, checks for win conditions and handles the timer
@@ -96,6 +89,8 @@ function Game() {
     var startTime;
     var timerCount = 0;
     var progressBar = $(".progress-bar");
+    var audio = {};
+
     /**
      * Initialize the game to a default state
      * @param size The size of the board. The board in this case is always a square
@@ -322,7 +317,6 @@ function Game() {
         startTime = Date.now();
         progressBar.css("width","0%");
         timerCount = 0;
-        //console.log("resetting timer");
     }
 
     /**
@@ -339,7 +333,6 @@ function Game() {
         }
 
         timer = setTimeout(updateProgress,100);
-        //console.log("progress count " + timerCount);
     }
 
     /**
@@ -356,8 +349,6 @@ function Game() {
      * Reset the game
      */
     this.resetGame = function () {
-        //setPlayer(0);
-        //mGameBoard.resetBoard();
         self.newGame(mSize);
     };
     /**
@@ -446,11 +437,6 @@ function GameBoard() {
       return mCells[id];
     };
 
-    // this.resetBoard = function () {
-    //     for (var i in mCells) {
-    //         mCells[i].setState(cellState.stateDefault);
-    //     }
-    // };
     /**
      * Create a row element with jQuery. Rows contain cell elements
      * @returns {*|jQuery|HTMLElement} The new row element
