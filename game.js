@@ -7,8 +7,6 @@ var cellState = {
     stateO:"O"
 };
 var game = null;
-var playerone = 0;
-var playertwo = 0;
 $(document).ready(setupGame);
 
 /**
@@ -44,10 +42,7 @@ function handleCellClick() {
         cell.setState(player.symbol);
         game.switchPlayer();
         game.checkWin(cell);
-
-        /*audio["dataline"] = new Audio();
-        audio["dataline"].src = "mp3/zg_btn_sm1.wav";  //audio file source
-        audio["dataline"].play(); //audio file play*/
+        game.playSound("click");
     }
 }
 /**
@@ -61,7 +56,6 @@ function pointerTapped(x,y) {
 
     //Call same function as the click handlers if pointed at a clickable element
     if (cell !== null) {
-        //console.log("pointer clicked cell",cell);
         handleCellClick.call(element);
     } else if (element === $(".reset")[0]){
         game.resetGame();
@@ -81,6 +75,8 @@ function Game() {
     var mGameBoard = null;
     var mPlayers = [];
     var mCurrentPlayer = 0;
+    var player1 = 0;
+    var player2 = 0;
     var mSize = 0;
     var mMoves = 0;
     var self = this;
@@ -89,7 +85,14 @@ function Game() {
     var startTime;
     var timerCount = 0;
     var progressBar = $(".progress-bar");
+
     var audio = {};
+    audio["reset"] = new Audio();
+    audio["reset"].src = "mp3/reset_laser.mp3";  //audio file source
+    audio["walk"] = new Audio();
+    audio["walk"].src = "mp3/11408^LASER1.mp3";  //audio file source
+    audio["click"] = new Audio();
+    audio["click"].src = "mp3/zg_btn_sm1.wav";  //audio file source
 
     /**
      * Initialize the game to a default state
@@ -145,15 +148,17 @@ function Game() {
      */
     function setPlayer(player) {
         mCurrentPlayer = player;
-        //console.log("current player is ",self.getCurrentPlayer());
+        var p1 = $('.player1');
+        var p2 = $('.player2');
+
         //Set the classes to show who the current player is
         if (player==0){
-            $('.player1').addClass('highlightCurrentPlayer');
-            $('.player2').removeClass('highlightCurrentPlayer');
+            p1.addClass('highlightCurrentPlayer');
+            p2.removeClass('highlightCurrentPlayer');
         }
         else if(player==1){
-            $('.player2').addClass('highlightCurrentPlayer');
-            $('.player1').removeClass('highlightCurrentPlayer');
+            p2.addClass('highlightCurrentPlayer');
+            p1.removeClass('highlightCurrentPlayer');
         }
     }
 
@@ -180,10 +185,11 @@ function Game() {
         //Using counter - not a great solution but it works
         var matchX = 0;
         var matchO = 0;
+        var checkCell = null;
 
         //check row the cell that was clicked is in
         for (var i = 0; i < mSize; i++) {
-            var checkCell = mGameBoard.getCellByID(row * mSize + i);
+            checkCell = mGameBoard.getCellByID(row * mSize + i);
             if (checkCell.getState() === cellState.stateX) {
                 matchX++;
             }else if (checkCell.getState() === cellState.stateO) {
@@ -199,8 +205,8 @@ function Game() {
         matchO = 0;
 
         //check column the cell that was clicked is in
-        for (var i = 0; i < mSize; i++) {
-            var checkCell = mGameBoard.getCellByID(i * mSize + col);
+        for (var j = 0; j < mSize; j++) {
+            checkCell = mGameBoard.getCellByID(j * mSize + col);
             if (checkCell.getState() === cellState.stateX) {
                 matchX++;
             }else if (checkCell.getState() === cellState.stateO) {
@@ -209,27 +215,14 @@ function Game() {
         }
         //Check for win
         if (doWin(matchX,matchO)) return;
+
         //Reset counters
         matchX = 0;
         matchO = 0;
 
         //Check diagonals
-        for (var i = 0, j = 0; i < mSize; i++, j++) {
-            var checkCell = mGameBoard.getCellByID(i * mSize + j);
-            if (checkCell.getState() === cellState.stateX) {
-                matchX++;
-            }else if (checkCell.getState() === cellState.stateO) {
-                matchO++;
-            }
-        }
-        //Check for win
-        if (doWin(matchX,matchO)) return;
-        //Reset counters
-        matchX = 0;
-        matchO = 0;
-        //Check other diagonal
-        for (var i = 0, j = mSize - 1; i < mSize; i++, j--) {
-            var checkCell = mGameBoard.getCellByID(i * mSize + j);
+        for (i = 0, j = 0; i < mSize; i++, j++) {
+            checkCell = mGameBoard.getCellByID(i * mSize + j);
             if (checkCell.getState() === cellState.stateX) {
                 matchX++;
             }else if (checkCell.getState() === cellState.stateO) {
@@ -239,9 +232,23 @@ function Game() {
         //Check for win
         if (doWin(matchX,matchO)) return;
 
-        //No winnner  if all moves have been made
+        //Reset counters
+        matchX = 0;
+        matchO = 0;
+        //Check other diagonal
+        for (i = 0, j = mSize - 1; i < mSize; i++, j--) {
+            checkCell = mGameBoard.getCellByID(i * mSize + j);
+            if (checkCell.getState() === cellState.stateX) {
+                matchX++;
+            }else if (checkCell.getState() === cellState.stateO) {
+                matchO++;
+            }
+        }
+        //Check for win
+        if (doWin(matchX,matchO)) return;
+
+        //No winner  if all moves have been made
         if (mMoves == mSize*mSize) {
-            console.log("No Winner");
             $(".modal-title").text("No Winner");
             $('#modalWin').modal('show');
             finishGame();
@@ -257,20 +264,21 @@ function Game() {
      * @returns {boolean} Whether there is a winner or not
      */
     function doWin(matchX,matchO) {
+        var title = $(".modal-title");
+        var modal = $('#modalWin');
+
         if (matchX == mSize) {
-            console.log("Player 1 wins");
-            playerone = playerone + 1;
-            document.querySelector('.wincount1').innerHTML = playerone;
-            $(".modal-title").text("Player 1 Wins");
-            $('#modalWin').modal('show');
+            player1 = player1 + 1;
+            document.querySelector('.wincount1').innerHTML = player1;
+            title.text("Player 1 Wins");
+            modal.modal('show');
             finishGame();
             return true;
         } else if (matchO == mSize) {
-            console.log("Player 2 wins");
-            playertwo = playertwo + 1;
-            document.querySelector('.wincount2').innerHTML = playertwo;
-            $(".modal-title").text("Player 2 Wins");
-            $('#modalWin').modal('show');
+            player2 = player2 + 1;
+            document.querySelector('.wincount2').innerHTML = player2;
+            title.text("Player 2 Wins");
+            modal.modal('show');
             finishGame();
             return true;
         }
@@ -296,10 +304,8 @@ function Game() {
             self.clearBoard = false;
             self.inPlay = true;
             startTimer();
-            var audio = {};
-            audio["walk"] = new Audio();
-            audio["walk"].src = "mp3/11408^LASER1.mp3";  //audio file source
-            audio["walk"].play(); //audio file play
+
+            self.playSound("walk");
         }
     };
     /**
@@ -361,10 +367,12 @@ function Game() {
         $(".row").detach();
         $(".row5x5").detach();
         game.initGame(size);
-        var audio = {};
-        audio["resetLaser"] = new Audio();
-        audio["resetLaser"].src = "mp3/reset_laser.mp3";  //audio file source
-        audio["resetLaser"].play(); //audio file play
+
+        self.playSound("reset");
+    };
+
+    this.playSound = function (sound) {
+        audio[sound].play(); //audio file play
     }
 }
 /**
