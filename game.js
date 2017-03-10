@@ -2,9 +2,9 @@
  * Created by baultik on 11/30/16.
  */
 var cellState = {
-    stateDefault:"stateDefault",
-    stateX:"X",
-    stateO:"O"
+    stateDefault: "stateDefault",
+    stateX: "X",
+    stateO: "O"
 };
 var game = null;
 $(document).ready(setupGame);
@@ -29,7 +29,7 @@ function setupGame() {
 
     var imageSrc1 = 'img/cursor.png';
     var imageSrc2 = 'img/cursor.png';
-    initialize(imageSrc1,25,25,imageSrc2, 25, 25, 1.2 );
+    initialize(imageSrc1, 25, 25, imageSrc2, 25, 25, 1.2);
 }
 /**
  * Click handler for all cell objects
@@ -50,20 +50,20 @@ function handleCellClick() {
  * @param x The x coordinate of the event
  * @param y The y coordinate of the event
  */
-function pointerTapped(x,y) {
-    var element = document.elementFromPoint(x,y);
+function pointerTapped(x, y) {
+    var element = document.elementFromPoint(x, y);
     var cell = game.getGameBoard().getCell(element);
 
     //Call same function as the click handlers if pointed at a clickable element
     if (cell !== null) {
         handleCellClick.call(element);
-    } else if (element === $(".reset")[0]){
+    } else if (element === $(".reset")[0]) {
         game.resetGame();
-    } else if (element === $(".threeXthree")[0]){
+    } else if (element === $(".threeXthree")[0]) {
         game.newGame(3)
-    } else if (element === $(".fiveXfive")[0]){
+    } else if (element === $(".fiveXfive")[0]) {
         game.newGame(5);
-    } else if (element === $(".start")[0]){
+    } else if (element === $(".start")[0]) {
         game.startGame();
     }
 }
@@ -104,15 +104,15 @@ function Game() {
         mSize = size;
         mMoves = 0;
         mGameBoard = new GameBoard();
-        mGameBoard.initGameBoard(size,size);
+        mGameBoard.initGameBoard(size, size);
         self.inPlay = false;
         self.clearBoard = true;
 
         //create players
-        var player1 = new Player(0,cellState.stateX);
-        var player2 = new Player(1,cellState.stateO);
+        var player1 = new Player(0, cellState.stateX);
+        var player2 = new Player(1, cellState.stateO);
 
-        mPlayers.push(player1,player2);
+        mPlayers.push(player1, player2);
 
         //Add click handlers to newly created cells
         $(".cell").click(handleCellClick);
@@ -129,7 +129,7 @@ function Game() {
      * Gets the current player object
      * @returns {*} The current player object
      */
-    this.getCurrentPlayer = function() {
+    this.getCurrentPlayer = function () {
         return mPlayers[mCurrentPlayer];
     };
     /**
@@ -152,11 +152,11 @@ function Game() {
         var p2 = $('.player2');
 
         //Set the classes to show who the current player is
-        if (player==0){
+        if (player == 0) {
             p1.addClass('highlightCurrentPlayer');
             p2.removeClass('highlightCurrentPlayer');
         }
-        else if(player==1){
+        else if (player == 1) {
             p2.addClass('highlightCurrentPlayer');
             p1.removeClass('highlightCurrentPlayer');
         }
@@ -179,7 +179,7 @@ function Game() {
 
         //Get what row and column the cell is currently in
         var index = cell.getCellID();
-        var row = Math.floor(index/mSize);
+        var row = Math.floor(index / mSize);
         var col = index % mSize;
 
         //Using counter - not a great solution but it works
@@ -192,13 +192,13 @@ function Game() {
             checkCell = mGameBoard.getCellByID(row * mSize + i);
             if (checkCell.getState() === cellState.stateX) {
                 matchX++;
-            }else if (checkCell.getState() === cellState.stateO) {
+            } else if (checkCell.getState() === cellState.stateO) {
                 matchO++;
             }
         }
 
         //Check for win
-        if (doWin(matchX,matchO)) return;
+        if (doWin(matchX, matchO)) return;
 
         //Reset counters
         matchX = 0;
@@ -209,12 +209,12 @@ function Game() {
             checkCell = mGameBoard.getCellByID(j * mSize + col);
             if (checkCell.getState() === cellState.stateX) {
                 matchX++;
-            }else if (checkCell.getState() === cellState.stateO) {
+            } else if (checkCell.getState() === cellState.stateO) {
                 matchO++;
             }
         }
         //Check for win
-        if (doWin(matchX,matchO)) return;
+        if (doWin(matchX, matchO)) return;
 
         //Reset counters
         matchX = 0;
@@ -225,12 +225,12 @@ function Game() {
             checkCell = mGameBoard.getCellByID(i * mSize + j);
             if (checkCell.getState() === cellState.stateX) {
                 matchX++;
-            }else if (checkCell.getState() === cellState.stateO) {
+            } else if (checkCell.getState() === cellState.stateO) {
                 matchO++;
             }
         }
         //Check for win
-        if (doWin(matchX,matchO)) return;
+        if (doWin(matchX, matchO)) return;
 
         //Reset counters
         matchX = 0;
@@ -240,15 +240,15 @@ function Game() {
             checkCell = mGameBoard.getCellByID(i * mSize + j);
             if (checkCell.getState() === cellState.stateX) {
                 matchX++;
-            }else if (checkCell.getState() === cellState.stateO) {
+            } else if (checkCell.getState() === cellState.stateO) {
                 matchO++;
             }
         }
         //Check for win
-        if (doWin(matchX,matchO)) return;
+        if (doWin(matchX, matchO)) return;
 
         //No winner  if all moves have been made
-        if (mMoves == mSize*mSize) {
+        if (mMoves == mSize * mSize) {
             $(".modal-title").text("No Winner");
             $('#modalWin').modal('show');
             finishGame();
@@ -263,7 +263,7 @@ function Game() {
      * @param matchO Number of O's in the elements that are being checked
      * @returns {boolean} Whether there is a winner or not
      */
-    function doWin(matchX,matchO) {
+    function doWin(matchX, matchO) {
         var title = $(".modal-title");
         var modal = $('#modalWin');
 
@@ -313,7 +313,7 @@ function Game() {
      */
     function startTimer() {
         startTime = Date.now();
-        timer = setTimeout(updateProgress,100);
+        timer = setTimeout(updateProgress, 100);
     }
 
     /**
@@ -321,7 +321,7 @@ function Game() {
      */
     function resetTimer() {
         startTime = Date.now();
-        progressBar.css("width","0%");
+        progressBar.css("width", "0%");
         timerCount = 0;
     }
 
@@ -335,10 +335,10 @@ function Game() {
         } else {
             timerCount++;
             var percent = Math.floor(((Date.now() - startTime) / 5000) * 100);
-            progressBar.css("width",percent+"%");
+            progressBar.css("width", percent + "%");
         }
 
-        timer = setTimeout(updateProgress,100);
+        timer = setTimeout(updateProgress, 100);
     }
 
     /**
@@ -348,7 +348,7 @@ function Game() {
         timerCount = 0;
         clearTimeout(timer);
         timer = null;
-        progressBar.css("width","0%");
+        progressBar.css("width", "0%");
     }
 
     /**
@@ -361,7 +361,7 @@ function Game() {
      * Make a new game
      * @param size The size of the board
      */
-    this.newGame = function(size) {
+    this.newGame = function (size) {
         finishGame();
         self.clearBoard = true;
         $(".row").detach();
@@ -390,12 +390,12 @@ function GameBoard() {
      * @param rows Number of rows
      * @param cols Number of columns
      */
-    this.initGameBoard = function(rows,cols) {
+    this.initGameBoard = function (rows, cols) {
         mRows = rows;
         mCols = cols;
 
         //create cell objects for size of board - use dom elements for count
-        for (var i = 0; i < mRows*mCols; i++) {
+        for (var i = 0; i < mRows * mCols; i++) {
             var cell = this.createCell(i);
             mCells.push(cell);
 
@@ -442,7 +442,7 @@ function GameBoard() {
      * @returns {*} The cell that matches the index or undefined
      */
     this.getCellByID = function (id) {
-      return mCells[id];
+        return mCells[id];
     };
 
     /**
@@ -452,8 +452,8 @@ function GameBoard() {
     function createRowElement() {
         var rowClass = "row";
         if (game.getSize() === 5) rowClass = "row5x5";
-        return $("<div>",{
-            class:rowClass
+        return $("<div>", {
+            class: rowClass
         })
     }
 }
@@ -467,8 +467,8 @@ function Cell(cellID) {
     var mCellID = cellID;
     var cellClass = "cell";
     if (game.getSize() === 5) cellClass = "cell5x5";
-    var mCellElement = $("<div>",{
-        class:cellClass
+    var mCellElement = $("<div>", {
+        class: cellClass
     });
     /**
      * Gets the current state of the cell
@@ -512,7 +512,7 @@ function Cell(cellID) {
  * @param symbol The symbol of the player - one of the cell state properties
  * @constructor
  */
-function Player(id,symbol) {
+function Player(id, symbol) {
     this.playerID = id;
     this.symbol = symbol;
 }
